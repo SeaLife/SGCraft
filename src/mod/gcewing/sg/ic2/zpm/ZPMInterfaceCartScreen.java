@@ -41,7 +41,7 @@ public class ZPMInterfaceCartScreen extends SGScreen {
     
     @Override
     protected void drawBackgroundLayer() {
-        bindTexture(SGCraft.mod.resourceLocation("textures/gui/zpm_interface_cart_gui.png"), 256, 256);
+        bindTexture(SGCraft.getInstance().resourceLocation("textures/gui/zpm_interface_cart_gui.png"), 256, 256);
         drawTexturedRect(0, 0, guiWidth, guiHeight, 0, 0);
 
         int cx = xSize / 2;

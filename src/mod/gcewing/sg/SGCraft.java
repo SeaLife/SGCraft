@@ -6,6 +6,8 @@
 
 package gcewing.sg;
 
+import gcewing.sg.conf.SGConfiguration;
+import gcewing.sg.conf.SGSounds;
 import gcewing.sg.ic2.gdo.GDOItem;
 import gcewing.sg.ic2.zpm.ZPMItem;
 import gcewing.sg.ic2.zpm.ZpmContainer;
@@ -52,43 +54,62 @@ import static java.util.Objects.requireNonNull;
 import static net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerCareer;
 import static net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
 
-// import dan200.computercraft.api.*; //[CC]
-
-@Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
-    acceptableRemoteVersions = Info.versionBounds, dependencies = "after:opencomputers;after:ic2;after:computercraft")
-
+@SuppressWarnings({"WeakerAccess", "unused"})
+@Mod(
+        name = Info.modName,
+        modid = Info.modID,
+        version = Info.versionNumber,
+        dependencies = Info.dependencies,
+        acceptableRemoteVersions = Info.versionBounds
+)
 public class SGCraft extends BaseMod<SGCraftClient> {
+
+    // region (Static access to SGCraft)
+    private static SGCraft instance;
+
+    public static SGCraft getInstance() {
+        return instance;
+    }
+    // endregion
 
     public static final Material machineMaterial = new Material(MapColor.IRON);
 
-    public static SGCraft mod;
-
-    public static SGChannel channel;
+    public static SGChannel          channel;
     public static BaseTEChunkManager chunkManager;
-    
+
+    // MINECRAFT :: BLOCKS
     public static SGBaseBlock sgBaseBlock;
     public static SGRingBlock sgRingBlock;
-    public static DHDBlock sgControllerBlock;
-    public static Block naquadahBlock, naquadahOre;
-    
-    public static Item naquadah, naquadahIngot, sgCoreCrystal, sgControllerCrystal, sgChevronUpgrade,
-        sgIrisUpgrade, sgIrisBlade;
-    
+    public static DHDBlock    sgControllerBlock;
+    public static Block       naquadahBlock;
+    public static Block       naquadahOre;
+
+    // MINECRAFT :: ITEMS
+    public static Item naquadah;
+    public static Item naquadahIngot;
+    public static Item sgCoreCrystal;
+    public static Item sgControllerCrystal;
+    public static Item sgChevronUpgrade;
+    public static Item sgIrisUpgrade;
+    public static Item sgIrisBlade;
+
+    // MINECRAFT :: IC2
     public static Block ic2PowerUnit;
-    public static Item ic2Capacitor;
+    public static Item  ic2Capacitor;
+
+    // MINECRAFT :: RF Tools
     public static Block rfPowerUnit;
-    
-    public static boolean addOresToExistingWorlds;
+
+    public static boolean             addOresToExistingWorlds;
     public static NaquadahOreWorldGen naquadahOreGenerator;
-    
+
     public static BaseSubsystem ic2Integration; //[IC2]
-    public static IIntegration ccIntegration; //[CC]
+    public static IIntegration  ccIntegration; //[CC]
     public static OCIntegration ocIntegration; //[OC]
     public static RFIntegration rfIntegration; //[RF]
-//     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public static Block zpm_interface_cart;
-    public static Item zpm, gdo;
+    public static Item  zpm, gdo;
 
     public static CreativeTabs creativeTabs;
 
@@ -96,23 +117,23 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static VillagerProfession tokraProfession;
 
     // Block Harvests
-    public static boolean canHarvestDHD = false;
+    public static boolean canHarvestDHD         = false;
     public static boolean canHarvestSGBaseBlock = false;
     public static boolean canHarvestSGRingBlock = false;
 
     //Client Options
     public static boolean useHDEventHorizionTexture = true;
-    public static boolean saveAddressToClipboard = false;
-
+    public static boolean saveAddressToClipboard    = false;
 
 
     public SGCraft() {
-        mod = this;
-
+        instance = this;
     }
 
-    @Mod.EventHandler
+
     @Override
+    @Mod.EventHandler
+    @SuppressWarnings("SpellCheckingInspection")
     public void preInit(FMLPreInitializationEvent e) {
         this.creativeTab = new CreativeTabs("sgcraft:sgcraft") {
             @Override
@@ -124,41 +145,38 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         rfIntegration = (RFIntegration) integrateWithMod("redstoneflux", "gcewing.sg.rf.RFIntegration"); //[RF]
         ic2Integration = integrateWithMod("ic2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
         ccIntegration = (IIntegration) integrateWithMod("computercraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-        ocIntegration = (OCIntegration)integrateWithMod("opencomputers", "gcewing.sg.oc.OCIntegration"); //[OC]
-//         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
+        ocIntegration = (OCIntegration) integrateWithMod("opencomputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 
         GameRegistry.registerTileEntity(ZpmInterfaceCartTE.class, new ResourceLocation(this.modID));
         super.preInit(e);
     }
-    
-    @Mod.EventHandler
+
     @Override
+    @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         super.init(e);
-        System.out.printf("SGCraft.init\n");
+        System.out.print("SGCraft.init");
         configure();
         channel = new SGChannel(Info.modID);
         chunkManager = new BaseTEChunkManager(this);
     }
 
-    @Mod.EventHandler
     @Override
+    @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
         super.postInit(e);
     }
 
-    @Override   
+    @Override
     protected SGCraftClient initClient() {
         return new SGCraftClient(this);
     }
 
     @Override
     void configure() {
+        // TODO: move DHDTE configuration to SGConfiguration
         DHDTE.configure(config);
-        NaquadahOreWorldGen.configure(config);
-        SGBaseBlock.configure(config);
-        SGBaseTE.configure(config);
-        FeatureGeneration.configure(config);
+        SGConfiguration.configure(config);
 
         // Server-Side Options
         addOresToExistingWorlds = config.getBoolean("options", "addOresToExistingWorlds", false);
@@ -166,7 +184,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         // Client-Side Options
         useHDEventHorizionTexture = config.getBoolean("client", "useHDEventHorizonTexture", useHDEventHorizionTexture);
         saveAddressToClipboard = config.getBoolean("client", "saveAddressToClipboard", saveAddressToClipboard);
-    }       
+    }
 
     @Override
     protected void registerOther() {
@@ -186,7 +204,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
         this.setupBlockHarvests();
     }
-    
+
     @Override
     protected void registerItems() {
         naquadah = newItem("naquadah"); //, "Naquadah");
@@ -221,11 +239,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     private static SoundHandler getSoundHandler() {
         return Minecraft.getMinecraft().getSoundHandler();
     }
-    
+
     public static boolean isValidStargateUpgrade(Item item) {
         return item == sgChevronUpgrade || item == sgIrisUpgrade;
     }
-    
+
     @Override
     protected void registerOres() {
         addOre("oreNaquadah", naquadahOre);
@@ -236,10 +254,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Override
     protected void registerRecipes() {
         ItemStack chiselledSandstone = new ItemStack(Blocks.SANDSTONE, 1, 1);
-        ItemStack smoothSandstone = new ItemStack(Blocks.SANDSTONE, 1, 2);
-        ItemStack sgChevronBlock = new ItemStack(sgRingBlock, 1, 1);
-        ItemStack blueDye = new ItemStack(Items.DYE, 1, 4);
-        ItemStack orangeDye = new ItemStack(Items.DYE, 1, 14);
+        ItemStack smoothSandstone    = new ItemStack(Blocks.SANDSTONE, 1, 2);
+        ItemStack sgChevronBlock     = new ItemStack(sgRingBlock, 1, 1);
+        ItemStack blueDye            = new ItemStack(Items.DYE, 1, 4);
+        ItemStack orangeDye          = new ItemStack(Items.DYE, 1, 14);
 
         if (config.getBoolean("recipes", "naquadah", false)) {
             newShapelessRecipe("naquada", naquadah, 1, Ingredient.fromItems(Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER));
@@ -296,7 +314,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         if (!isModLoaded("ic2"))
             addGenericCapacitorRecipe();
     }
-    
+
     protected void addGenericCapacitorRecipe() {
         if (config.getBoolean("recipes", "genericCapacitorItem", true)) {
             newRecipe("ic2capacitor", ic2Capacitor, 1, "iii", "ppp", "iii", 'i', "ingotIron", 'p', "paper");
@@ -310,7 +328,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addContainer(SGGui.PowerUnit, PowerContainer.class);
         addContainer(SGGui.ZPMInterfaceCart, ZpmContainer.class);
     }
-   
+
     @Override
     protected void registerWorldGenerators() {
         if (config.getBoolean("options", "enableNaquadahOre", true)) {
@@ -320,10 +338,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         }
         MapGenStructureIO.registerStructureComponent(FeatureUnderDesertPyramid.class, "SGCraft:FeatureUnderDesertPyramid");
     }
-    
+
     @Override //[VILL]
     protected void registerVillagers() {
-        tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png","sgcraft:textures/skins/tokra.png");
+        tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png", "sgcraft:textures/skins/tokra.png");
         // Update: Needs new skin for Zombie mode?
         VillagerCareer tokraCareer = new VillagerCareer(tokraProfession, "sgcraft:tokra");
         tokraCareer.addTrade(1, new SGTradeHandler());
@@ -334,10 +352,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     protected void registerEntities() {
         addEntity(EntityStargateIris.class, "stargate_iris", SGEntity.Iris, 1000000, false);
     }
-    
+
     @Override
     protected void registerSounds() {
-        SGBaseTE.registerSounds(this);
+        SGSounds.registerSounds(this);
     }
 
     @SubscribeEvent
@@ -351,31 +369,31 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         Chunk chunk = e.getChunk();
         SGChunkData.onChunkSave(e);
     }
-    
+
     @SubscribeEvent
     public void onInitMapGen(InitMapGenEvent e) {
         FeatureGeneration.onInitMapGen(e);
     }
-    
+
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent e) {
         switch (e.phase) {
             case START: {
                 for (BaseSubsystem om : subsystems)
                     if (om instanceof IIntegration)
-                        ((IIntegration)om).onServerTick();
+                        ((IIntegration) om).onServerTick();
                 break;
             }
         }
     }
-    
+
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload e) {
         Chunk chunk = e.getChunk();
         if (!chunk.getWorld().isRemote) {
             for (Object obj : chunk.getTileEntityMap().values()) {
                 if (obj instanceof SGBaseTE) {
-                    SGBaseTE te = (SGBaseTE)obj;
+                    SGBaseTE te = (SGBaseTE) obj;
                     te.disconnect();
                 }
             }
@@ -404,7 +422,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
     private void setupBlockHarvests() {
         canHarvestDHD = config.getBoolean("block-harvest", "dhdBlock", canHarvestDHD);
-        canHarvestSGBaseBlock  = config.getBoolean("block-harvest", "sgBaseBlock", canHarvestSGBaseBlock);
-        canHarvestSGRingBlock  = config.getBoolean("block-harvest", "sgRingBlock", canHarvestSGRingBlock);
+        canHarvestSGBaseBlock = config.getBoolean("block-harvest", "sgBaseBlock", canHarvestSGBaseBlock);
+        canHarvestSGRingBlock = config.getBoolean("block-harvest", "sgRingBlock", canHarvestSGRingBlock);
     }
 }

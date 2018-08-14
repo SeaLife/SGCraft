@@ -27,7 +27,7 @@ public class OCInterfaceBlock extends SGInterfaceBlock<OCInterfaceTE> {
         EnumHand hand, EnumFacing side, float hx, float hy, float hz)
     {
         if (!world.isRemote)
-            SGCraft.mod.openGui(player, SGGui.OCInterface, world, pos);
+            SGCraft.getInstance().openGui(player, SGGui.OCInterface, world, pos);
         return true;
     }
     

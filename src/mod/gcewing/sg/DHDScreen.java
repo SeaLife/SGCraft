@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+import gcewing.sg.conf.SGSounds;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,22 +22,23 @@ import org.lwjgl.opengl.GL11;
 import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
 import static org.lwjgl.opengl.GL11.*;
 
+@SuppressWarnings("all")
 public class DHDScreen extends SGScreen {
 
-    final static int dhdWidth = 320;
-    final static int dhdHeight = 120;
+    final static int    dhdWidth   = 320;
+    final static int    dhdHeight  = 120;
     final static double dhdRadius1 = dhdWidth * 0.1;
     final static double dhdRadius2 = dhdWidth * 0.275;
     final static double dhdRadius3 = dhdWidth * 0.45;
 
-    World world;
+    World    world;
     BlockPos pos;
-    int dhdTop, dhdCentreX, dhdCentreY;
+    int      dhdTop, dhdCentreX, dhdCentreY;
     //String enteredAddress = "";
-    int closingDelay = 0;
-    int addressLength;
+    int   closingDelay = 0;
+    int   addressLength;
     DHDTE cte;
-    
+
     public DHDScreen(EntityPlayer player, World world, BlockPos pos) {
         this.world = world;
         this.pos = pos;
@@ -45,20 +47,20 @@ public class DHDScreen extends SGScreen {
         if (te != null)
             addressLength = te.getNumChevrons();
     }
-    
+
     SGBaseTE getStargateTE() {
         return cte != null ? cte.getLinkedStargateTE() : null;
     }
-    
+
     DHDTE getControllerTE() {
         TileEntity te = getWorldTileEntity(world, pos);
         return te instanceof DHDTE ? (DHDTE) te : null;
     }
-    
+
     String getEnteredAddress() {
         return cte.enteredAddress;
     }
-    
+
     void setEnteredAddress(String address) {
         cte.enteredAddress = address;
     }
@@ -69,7 +71,7 @@ public class DHDScreen extends SGScreen {
         dhdCentreX = width / 2;
         dhdCentreY = dhdTop + dhdHeight / 2;
     }
-    
+
 //  @Override
 //  public void onGuiClosed() {
 //  }
@@ -96,11 +98,11 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     void closeAfterDelay(int ticks) {
         closingDelay = ticks;
     }
-    
+
     int findDHDButton(int mx, int my) {
         //System.out.printf("DHDScreen.findDHDButton: mx = %d, my = %d, cx = %d, cy = %d\n",
         //  mx, my, dhdCentreX, dhdCentreY);
@@ -125,16 +127,17 @@ public class DHDScreen extends SGScreen {
         //return i0 + (int)Math.floor(a * 14 / 360);
         int i0, nb;
         if (r > dhdRadius2) {
-            i0 = 1; nb = 26;
+            i0 = 1;
+            nb = 26;
+        } else {
+            i0 = 27;
+            nb = 11;
         }
-        else {
-            i0 = 27; nb = 11;
-        }
-        int i = i0 + (int)Math.floor(a * nb / 360);
+        int i = i0 + (int) Math.floor(a * nb / 360);
         System.out.printf("DHDScreen.findDHDButton: i = %d\n", i);
         return i;
     }
-    
+
     void dhdButtonPressed(int i) {
         //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
         if (i == 0) {
@@ -145,12 +148,12 @@ public class DHDScreen extends SGScreen {
             chevron(SGBaseTE.symbolToChar(i - 1));
         }
     }
-    
+
     void buttonSound(SoundEvent sound) {
         EntityPlayer player = mc.player;
         ISound s = new PositionedSoundRecord(sound, SoundCategory.BLOCKS,
-            1F, 1F,
-            (float)player.posX, (float)player.posY, (float)player.posZ);
+                1F, 1F,
+                (float) player.posX, (float) player.posY, (float) player.posZ);
         mc.getSoundHandler().playSound(s);
     }
 
@@ -160,7 +163,7 @@ public class DHDScreen extends SGScreen {
             case Keyboard.KEY_ESCAPE:
                 close();
                 break;
-           // Experimental -> Auto Dial address with instant open, Knox's anyone?
+            // Experimental -> Auto Dial address with instant open, Knox's anyone?
             case Keyboard.KEY_F12:
                 //SGBaseTE te = getStargateTE();
                 //sendConnectOrDisconnect(te, "ABKD7M6");
@@ -181,22 +184,22 @@ public class DHDScreen extends SGScreen {
                 break;
         }
     }
-    
+
     void dial() {
         SGBaseTE te = getStargateTE();
         if (te != null) {
-            buttonSound(SGBaseTE.dhdDialSound);
+            buttonSound(SGSounds.DHD_DIAL);
             sendConnectOrDisconnect(te, te.state == SGState.Idle ? getEnteredAddress() : "");
 
         }
     }
-    
+
     void sendConnectOrDisconnect(SGBaseTE te, String address) {
         System.out.println("dial address: " + address);
         SGChannel.sendConnectOrDisconnectToServer(te, address);
         closeAfterDelay(10);
     }
-        
+
     void erase() {
         if (stargateIsIdle()) {
             buttonSound(SoundEvents.UI_BUTTON_CLICK);
@@ -207,28 +210,28 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     void chevron(char c) {
         if (stargateIsIdle()) {
-            buttonSound(SGBaseTE.dhdPressSound);
+            buttonSound(SGSounds.DHD_PRESS);
             String a = getEnteredAddress();
-            int n = a.length();
+            int    n = a.length();
             if (n < addressLength) {
                 cte.enterSymbol(null, c);
                 SGChannel.sendEnterSymbolToServer(cte, c);
             }
         }
     }
-    
+
     boolean stargateIsIdle() {
         SGBaseTE te = getStargateTE();
         return (te != null && te.state == SGState.Idle);
     }
-    
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
         SGBaseTE te = getStargateTE();
-        glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT);
+        glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
         glEnable(GL11.GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_ALPHA_TEST);
@@ -244,16 +247,16 @@ public class DHDScreen extends SGScreen {
     }
 
     void drawBackgroundImage() {
-        bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_gui.png"));
+        bindTexture(SGCraft.getInstance().resourceLocation("textures/gui/dhd_gui.png"));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         drawTexturedRect((width - dhdWidth) / 2, height - dhdHeight, dhdWidth, dhdHeight);
     }
-    
+
     void drawOrangeButton() {
-        bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_centre.png"), 128, 64);
-        SGBaseTE te = getStargateTE();
-        boolean connected = te != null && te.isActive();
+        bindTexture(SGCraft.getInstance().resourceLocation("textures/gui/dhd_centre.png"), 128, 64);
+        SGBaseTE te        = getStargateTE();
+        boolean  connected = te != null && te.isActive();
         if (te == null || !te.isMerged)
             setColor(0.2, 0.2, 0.2);
         else if (connected)
@@ -264,23 +267,23 @@ public class DHDScreen extends SGScreen {
         double ry = dhdHeight * 48 / 256.0;
 //         Tessellator.instance.disableColor();
         drawTexturedRect(dhdCentreX - rx, dhdCentreY - ry - 6, 2 * rx, 1.5 * ry,
-            64, 0, 64, 48);
+                64, 0, 64, 48);
         resetColor();
         if (connected) {
             GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
             double d = 5;
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - ry - d - 6, 2 * (rx + d), ry + d,
-                0, 0, 64, 32);
+                    0, 0, 64, 32);
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - 6, 2 * (rx + d), 0.5 * ry + d,
-                0, 32, 64, 32);
+                    0, 32, 64, 32);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         }
     }
-    
+
     void drawEnteredSymbols() {
         drawAddressSymbols(width / 2, dhdTop - 80, getEnteredAddress());
     }
-    
+
     void drawEnteredString() {
         String address = SGAddressing.padAddress(getEnteredAddress(), "|", addressLength);
         drawAddressString(width / 2, dhdTop - 20, address);

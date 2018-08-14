@@ -50,7 +50,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
         EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
-        SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
+        SGCraft.getInstance().openGui(player, SGGui.PowerUnit, world, pos);
         return true;
     }
     

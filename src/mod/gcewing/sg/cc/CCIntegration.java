@@ -18,14 +18,14 @@ public class CCIntegration extends BaseSubsystem implements IIntegration {
     @Override
     public void registerBlocks() {
         System.out.printf("CCIntegration.registerBlocks\n");
-        ccInterface = SGCraft.mod.newBlock("ccInterface", CCInterfaceBlock.class);
+        ccInterface = SGCraft.getInstance().newBlock("ccInterface", CCInterfaceBlock.class);
     }
 
     @Override
     public void registerRecipes() {
         if (ccInterface != null) {
             if (mod.config.getBoolean("recipes", "ccInterfaceBlock", true)) {
-                SGCraft.mod.newRecipe("cc_interface", ccInterface, 1, "SnS", "SrS", "SSS", 'S', Blocks.STONE, 'n', "ingotNaquadahAlloy", 'r', Items.REDSTONE);
+                SGCraft.getInstance().newRecipe("cc_interface", ccInterface, 1, "SnS", "SrS", "SSS", 'S', Blocks.STONE, 'n', "ingotNaquadahAlloy", 'r', Items.REDSTONE);
             }
         }
     }

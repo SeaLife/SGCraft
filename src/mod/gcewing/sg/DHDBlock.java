@@ -98,7 +98,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         SGGui id = cy > 0.5 ? SGGui.SGController : SGGui.DHDFuel;
-        SGCraft.mod.openGui(player, id, world, pos);
+        SGCraft.getInstance().openGui(player, id, world, pos);
         return true;
     }
     

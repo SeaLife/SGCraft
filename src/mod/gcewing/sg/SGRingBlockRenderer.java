@@ -25,7 +25,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
     {
         ISGBlock ringBlock = (ISGBlock)state.getBlock();
         if (target.isRenderingBreakEffects() || (layer == BlockRenderLayer.SOLID && !ringBlock.isMerged(world, pos)))
-            BaseRenderingManager.renderBlockUsingModelSpec(SGCraft.mod.client, world, pos, state, target, layer, t);
+            BaseRenderingManager.renderBlockUsingModelSpec(SGCraft.getInstance().client, world, pos, state, target, layer, t);
         else {
             SGBaseTE te = ringBlock.getBaseTE(world, pos);
             if (te != null) {
@@ -37,7 +37,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
                         if (camoState.getBlock().canRenderInLayer(camoState,layer)) {
                             //System.out.printf("SGRingBlockRenderer: Rendering camouflage block %s at %s in layer %s\n",
                             //    camoState, pos, layer);
-                            BaseRenderingManager.renderAlternateBlock(SGCraft.mod.client, world, pos, camoState, target);
+                            BaseRenderingManager.renderAlternateBlock(SGCraft.getInstance().client, world, pos, camoState, target);
                         }
                     }
                 }
@@ -46,7 +46,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
     }
     
     public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
-        BaseRenderingManager.renderItemStackUsingModelSpec(SGCraft.mod.client, stack, target, t);
+        BaseRenderingManager.renderItemStackUsingModelSpec(SGCraft.getInstance().client, stack, target, t);
     }
 
 }

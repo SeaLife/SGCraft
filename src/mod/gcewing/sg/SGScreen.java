@@ -74,7 +74,7 @@ public class SGScreen extends BaseGui.Screen {
     }
     
     void bindSGTexture(String name, int usize, int vsize) {
-        bindTexture(SGCraft.mod.resourceLocation("textures/gui/" + name), usize, vsize);
+        bindTexture(SGCraft.getInstance().resourceLocation("textures/gui/" + name), usize, vsize);
     }
     
 }

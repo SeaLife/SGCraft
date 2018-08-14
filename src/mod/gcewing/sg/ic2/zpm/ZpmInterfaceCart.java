@@ -114,7 +114,7 @@ public class ZpmInterfaceCart extends BlockContainer {
         world.scheduleBlockUpdate(pos, state.getBlock(),0,0);
         ZpmInterfaceCartTE.at(world, pos).markDirty();
         if (!world.isRemote) {
-            SGCraft.mod.openGui(player, SGGui.ZPMInterfaceCart, world, pos);
+            SGCraft.getInstance().openGui(player, SGGui.ZPMInterfaceCart, world, pos);
         }
         return true;
     }

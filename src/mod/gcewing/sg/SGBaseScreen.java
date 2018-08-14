@@ -70,7 +70,7 @@ public class SGBaseScreen extends SGScreen {
     
     @Override
     protected void drawBackgroundLayer() {
-        bindTexture(SGCraft.mod.resourceLocation("textures/gui/sg_gui.png"), 256, 256);
+        bindTexture(SGCraft.getInstance().resourceLocation("textures/gui/sg_gui.png"), 256, 256);
         drawTexturedRect(0, 0, guiWidth, guiHeight, 0, 0);
         //drawFuelGauge();
         int cx = xSize / 2;

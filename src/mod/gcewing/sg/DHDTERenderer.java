@@ -23,7 +23,7 @@ class DHDTERenderer extends BaseTileEntityRenderer {
     final static int buttonTextureIndex = 3;
     
     public DHDTERenderer() {
-        SGCraft mod = SGCraft.mod;
+        SGCraft mod = SGCraft.getInstance();
         ResourceLocation ttLoc = mod.textureLocation("tileentity/dhd_top.png");
         ResourceLocation stLoc = mod.textureLocation("tileentity/dhd_side.png");
         ResourceLocation dtLoc = mod.textureLocation("tileentity/dhd_detail.png");
